@@ -1,0 +1,17 @@
+# values.yaml for OpenTelemetry Demo on Minikube
+
+components:
+  # Frontend (shop application UI)
+  frontend:
+    service:
+      type: NodePort
+
+  # Grafana (dashboards)
+  grafana:
+    service:
+      type: NodePort
+
+  # Jaeger (tracing UI)
+  jaeger:
+    service:
+      type: NodePort

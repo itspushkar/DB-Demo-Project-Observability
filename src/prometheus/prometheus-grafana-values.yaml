@@ -1,0 +1,22 @@
+# prometheus-grafana-values.yaml
+grafana:
+  enabled: true
+  service:
+    type: NodePort
+prometheus:
+  prometheusSpec:
+    additionalScrapeConfigs:
+      - job_name: 'otel-collector-metrics'
+        kubernetes_sd_configs:
+          - role: pod
+        relabel_configs:
+          - source_labels: [__meta_kubernetes_pod_label_app_kubernetes_io_name]
+            regex: otel-collector
+            action: keep
+          - source_labels: [__meta_kubernetes_pod_container_port_name]
+            regex: metrics
+            action: keep
+          - source_labels: [__meta_kubernetes_pod_ip, __meta_kubernetes_pod_container_port_number]
+            regex: (.+);(.+)
+            replacement: $1:$2
+            target_label: __address__

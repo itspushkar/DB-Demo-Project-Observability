@@ -1,0 +1,46 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: otel-collector-config
+  namespace: default
+data:
+  otel-collector-config.yaml: |
+    receivers:
+      otlp:
+        protocols:
+          grpc:
+            endpoint: 0.0.0.0:4317
+          http:
+            endpoint: 0.0.0.0:4318
+      postgresql:
+        endpoint: "postgresql.default.svc.cluster.local:5432"
+        username: "postgres"
+        password: "postgres"
+        databases:
+          - "mydb"
+      filelog:
+        include:
+          - /var/log/containers/*.log
+        start_at: beginning
+
+    exporters:
+      logging:
+        loglevel: debug
+      otlp:
+        endpoint: "jaeger-collector:4317"
+        tls:
+          insecure: true
+      prometheus:
+        endpoint: "0.0.0.0:9464"
+
+    service:
+      pipelines:
+        logs:
+          receivers: [filelog]
+          exporters: [logging]
+        metrics:
+          receivers: [otlp, postgresql]
+          exporters: [logging, prometheus]
+        traces:
+          receivers: [otlp]
+          exporters: [logging, otlp]
